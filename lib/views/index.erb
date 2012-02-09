@@ -65,6 +65,7 @@
 <title>Simple Key/Value Store (SKVS)</title>
 </head>
 <body>
+<div>
 <h1>Simple Key/Value Store (SKVS)</h1>
 
 <form id="search" method="get" action="<%= url("/") %>">
@@ -72,6 +73,7 @@
 </form>
 
 <form id="main" method="post" action="<%= url("/_set") %>">
+</form>
 
 <table id="data">
   <thead>
@@ -112,8 +114,7 @@
   <% end %>
   </tbody>
 </table>
-
-</form>
+</div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript" charset="utf-8"></script>
 
