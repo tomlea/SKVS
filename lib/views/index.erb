@@ -120,7 +120,7 @@
 <script type="text/javascript" charset="utf-8">
   $(function(){
     $("input[name=key]").focus();
-    $("tbody").on("click", "td", function(){
+    $("#data").on("click", "tbody td", function(){
       var $t = $(this),
           key = $t.parent("tr").find("th").text();
 
