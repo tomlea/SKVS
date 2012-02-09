@@ -1,0 +1,173 @@
+<html>
+<head>
+<style>
+  table{
+    border-collapse:separate;
+    border-spacing: 0 20px;
+
+    width: 100%;
+  }
+
+  table td, table th{
+    width: 50%;
+    padding: 0 10px;
+  }
+
+  table tfoot a{
+    text-decoration: underline;
+  }
+
+  table td{
+    border-left: 1px solid #eee;
+  }
+
+  table th{
+    text-align: right;
+    font-weight: bold;
+    border-right: 1px solid #fff;
+  }
+
+  table tr:hover th{
+    border-right: 1px solid #eee;
+  }
+
+  * {
+    font-weight: inherit;
+    text-decoration: inherit;
+    color: inherit;
+  }
+  strong {
+    font-weight: bold;
+  }
+
+  body {
+    font-family: "helvetica neue", arial, sans-serif;
+    font-weight: 200;
+  }
+
+  #search, tfoot {
+    text-align: center;
+  }
+
+  h1, td *, th *, th, td{
+    vertical-align: top;
+  }
+
+  h1 {
+    text-align: center;
+    font-weight: bold;
+  }
+  textarea {
+    padding: 2px;
+  }
+
+</style>
+<title>Simple Key/Value Store (SKVS)</title>
+</head>
+<body>
+<h1>Simple Key/Value Store (SKVS)</h1>
+
+<form id="search" method="get" action="<%= url("/") %>">
+  <input type='search' placeholder='search' name='q' value="<%=h params[:q].to_s %>" />
+</form>
+
+<form id="main" method="post" action="<%= url("/_set") %>">
+
+<table id="data">
+  <thead>
+      <tr>
+        <th>
+          <input form="main" name="key" placeholder="key" required />
+        </th>
+        <td>
+          <textarea form="main" name="value" placeholder="value" ></textarea>
+          <input form="main" type="submit" value="set" />
+        </td>
+      </tr>
+  </thead>
+  <tfoot>
+    <tr>
+      <td colspan="2">
+        <% if @count > load_count %>
+          Showing <strong><%= load_count %></strong> of <strong><%= @count %></strong>,
+          <a href="<%= url("/?load_count=#{load_count*2}&q=#{URI.encode(params[:q].to_s)}") %>">
+            load more?
+          </a>
+        <% else %>
+          Showing all <strong><%= @count %></strong>.
+        <% end %>
+      </td>
+    </tr>
+  </tfoot>
+  <tbody>
+  <% @data.each do |k,v| %>
+    <tr>
+      <th><a href="<%= url("/#{k}") %>"><%=h k %></a></th>
+      <% if v.length < 100 %>
+        <td><%=hbr v %></td>
+      <% else %>
+        <td class="truncated"><%=hbr v[0..100] %>...</td>
+      <% end %>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+
+</form>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+
+<script type="text/javascript" charset="utf-8">
+  $(function(){
+    $("input[name=key]").focus();
+    $("tbody").on("click", "td", function(){
+      var $t = $(this),
+          key = $t.parent("tr").find("th").text();
+
+      if($t.hasClass("truncated")){
+        $.get(<%= url("/").inspect %>+key, function(value){
+          $("input[name=key]").val(key);
+          $("textarea[name=value]").val(value).focus().select();
+        });
+      }else{
+        $("input[name=key]").val(key);
+        $("textarea[name=value]").val($t.text()).focus().select();
+      }
+    });
+
+
+    var update = function(url){
+      $.get(url, function(data){
+        var doc = $(data);
+        $("#data tbody").replaceWith(doc.find("#data tbody"));
+        $("#data tfoot").replaceWith(doc.find("#data tfoot"));
+        $("#search input").val(doc.find("input[type=search]").val());
+      });
+    }
+
+
+    var oldUrl = null;
+    var seachCallback = function(el){
+      var url = "/?q="+encodeURIComponent($(this).val());
+      if(oldUrl === url){
+        return;
+      }
+      oldUrl = url;
+      window.history.pushState({}, "", url);
+      update(url);
+    };
+
+    $(window).on("popstate", function(){
+      update(document.location);
+    })
+
+    $("#search input")
+      .on("keyup", seachCallback)
+      .on("change", seachCallback)
+      .on("search", seachCallback);
+    
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require "skvs"
+
+Sinatra::Application.run!(:port => 7654)
