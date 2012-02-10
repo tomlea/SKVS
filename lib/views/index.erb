@@ -1,6 +1,11 @@
 <html>
 <head>
 <style>
+
+  body {
+    margin: 0;
+  }
+
   table{
     border-collapse:separate;
     border-spacing: 0 20px;
@@ -13,12 +18,18 @@
     padding: 0 10px;
   }
 
+  table tfoot td {
+    padding: 2px 0;
+    border: none;
+    background: #ddd;
+  }
+
   table tfoot a{
     text-decoration: underline;
   }
 
   table td{
-    border-left: 1px solid #eee;
+    border-left: 1px solid #ddd;
   }
 
   table th{
@@ -28,7 +39,7 @@
   }
 
   table tr:hover th{
-    border-right: 1px solid #eee;
+    border-right: 1px solid #ddd;
   }
 
   * {
@@ -61,6 +72,11 @@
     padding: 2px;
   }
 
+  th.buttons {
+    text-align: left;
+    width: 16px;
+  }
+
 </style>
 <title>Simple Key/Value Store (SKVS)</title>
 </head>
@@ -78,6 +94,8 @@
 <table id="data">
   <thead>
       <tr>
+        <th class="buttons">
+        </th>
         <th>
           <input form="main" name="key" placeholder="key" required />
         </th>
@@ -89,7 +107,7 @@
   </thead>
   <tfoot>
     <tr>
-      <td colspan="2">
+      <td colspan="3">
         <% if @count > load_count %>
           Showing <strong><%= load_count %></strong> of <strong><%= @count %></strong>,
           <a href="<%= url("/?load_count=#{load_count*2}&q=#{URI.encode(params[:q].to_s)}") %>">
@@ -104,6 +122,11 @@
   <tbody>
   <% @data.each do |k,v| %>
     <tr>
+      <th class="buttons">
+        <button class="delete" data-url="<%= url("/#{k}") %>">
+          delete
+        </button>
+      </th>
       <th><a href="<%= url("/#{k}") %>"><%=h k %></a></th>
       <% if v.length < 100 %>
         <td><%=hbr v %></td>
@@ -161,6 +184,16 @@
     $(window).on("popstate", function(){
       update(document.location);
     })
+
+    $("body").on("click", ".delete", function(){
+      var el = this;
+      $(el).parents("tr").hide();
+      $.ajax($(this).attr("data-url"), {type: "put", data: {}, complete: function(){
+        $(el).parents("tr").remove();
+      }});
+
+      return false;
+    });
 
     $("#search input")
       .on("keyup", seachCallback)
