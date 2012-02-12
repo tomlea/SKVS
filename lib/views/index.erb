@@ -127,7 +127,7 @@
           delete
         </button>
       </th>
-      <th><a href="<%= url("/#{k}") %>"><%=h k %></a></th>
+      <th><a href="<%= url("/#{k}") %>"><span class="key"><%=h k %></span></a></th>
       <% if v.length < 100 %>
         <td><%=hbr v %></td>
       <% else %>
@@ -146,7 +146,7 @@
     $("input[name=key]").focus();
     $("#data").on("click", "tbody td", function(){
       var $t = $(this),
-          key = $t.parent("tr").find("th").text();
+          key = $t.parent("tr").find(".key").text();
 
       if($t.hasClass("truncated")){
         $.get(<%= url("/").inspect %>+key, function(value){
